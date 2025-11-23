@@ -65,6 +65,7 @@
     <Compile Include="Assets\Script\scenes\DoorTrigger.cs" />
     <Compile Include="Assets\Script\player\FirstPersonController.cs" />
     <Compile Include="Assets\Script\player\PlayerSpawner.cs" />
+    <Compile Include="Assets\Script\LevelQuestionTrigger.cs" />
     <Compile Include="Assets\Script\scenes\Blind_Light.cs" />
   </ItemGroup>
   <ItemGroup>
