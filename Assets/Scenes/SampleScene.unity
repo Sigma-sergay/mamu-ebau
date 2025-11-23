@@ -271,25 +271,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6538cf4a9185074891093663dc339b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  behavior: 0
-  interactKey: 101
-  doorModel: {fileID: 0}
-  openAngle: 90
-  animationSpeed: 2
-  isBusy: 0
-  initialRotation: {x: 0, y: 0, z: 0, w: 0}
-  sceneName: 
-  sceneIndex: -1
-  spawnPosition: {x: 0, y: 1, z: 0}
-  spawnRotation: {x: 0, y: 0, z: 0}
-  teleportTargetName: govno
-  screenFaderCanvasGroup: {fileID: 0}
-  fadeSpeed: 1.5
-  promptText: "\u041D\u0430\u0442\u0438\u0441\u043D\u0438 E"
-  promptTextUI: {fileID: 0}
-  fadeDuration: 0.5
-  playerNearby: 0
-  promptCanvasGroup: {fileID: 0}
 --- !u!1 &598342149 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5194334309628646677, guid: ff903b1790812814ab1fa2916a604243, type: 3}
@@ -1331,36 +1312,15 @@ GameObject:
   - component: {fileID: 1692147102}
   - component: {fileID: 1692147101}
   - component: {fileID: 1692147100}
-  - component: {fileID: 1692147099}
   - component: {fileID: 1692147104}
+  - component: {fileID: 1692147105}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1692147099
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1692147098}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 943f0ee97effc9040bf5c5d5208c00b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  walkSpeed: 5
-  runSpeed: 8
-  jumpForce: 5
-  gravity: -9.81
-  rotationSpeed: 10
-  cameraTransform: {fileID: 0}
-  groundCheck: {fileID: 1793558362}
-  groundDistance: 0.2
-  groundTag: Ground
 --- !u!136 &1692147100
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1443,7 +1403,7 @@ Transform:
   m_GameObject: {fileID: 1692147098}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.24, y: -12.09, z: 42.17}
+  m_LocalPosition: {x: 6.24, y: -2.32, z: 5.89}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1476,8 +1436,31 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!114 &1692147105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1692147098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 316530308b0f786449ddfd62891f88d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  walkSpeed: 5
+  runSpeed: 8
+  jumpForce: 5
+  gravity: -9.81
+  acceleration: 10
+  mouseSensitivity: 2
+  maxLookAngle: 80
+  cameraSmoothSpeed: 0
+  groundCheck: {fileID: 0}
+  groundDistance: 0.2
+  groundTag: Ground
 --- !u!1 &1727142764
 GameObject:
   m_ObjectHideFlags: 0
@@ -1638,8 +1621,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.020000001, y: 0.019999998, z: 0.019999994}
-  m_Center: {x: 0.0000000018626451, y: 0, z: 0}
+  m_Size: {x: 0.020000001, y: 0.019999998, z: 0.033083193}
+  m_Center: {x: 0.0000000020815956, y: -4.551129e-19, z: 0.006541599}
 --- !u!1 &1796707797
 GameObject:
   m_ObjectHideFlags: 0
@@ -1756,6 +1739,7 @@ GameObject:
   - component: {fileID: 1849709818}
   - component: {fileID: 1849709820}
   - component: {fileID: 1849709819}
+  - component: {fileID: 1849709821}
   m_Layer: 0
   m_Name: Player Camera
   m_TagString: Untagged
@@ -1772,7 +1756,7 @@ Transform:
   m_GameObject: {fileID: 1849709817}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.862, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1837,6 +1821,43 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1849709821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849709817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f36cdbfa13011b49b1c9fb421b74d1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  targetOffset: {x: 0, y: 1.5, z: 0}
+  normalDistance: 5
+  minDistance: 0.5
+  mouseSensitivity: 2
+  minVerticalAngle: -40
+  maxVerticalAngle: 80
+  positionSmoothing: 10
+  rotationSmoothing: 8
+  collisionLayers:
+    m_Bits: 4294967295
+  cameraRadius: 0.3
+  enableCameraCollider: 1
+  colliderSize: {x: 0.5, y: 0.5, z: 0.5}
+  enableZoom: 1
+  zoomSpeed: 2
+  minZoomDistance: 2
+  maxZoomDistance: 10
+  currentDistance: 0
+  desiredDistance: 0
+  horizontalAngle: 0
+  verticalAngle: 0
+  currentPosition: {x: 0, y: 0, z: 0}
+  currentRotation: {x: 0, y: 0, z: 0, w: 0}
+  cameraCollider: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
