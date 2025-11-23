@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{469D6D6B-7B64-25B2-A836-0B881C67982D}</ProjectGuid>
+    <ProjectGuid>{AB576F7B-38AD-ACDC-E0D2-1A5ACCCDB8DE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -61,10 +61,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scenes\Menu\Button.cs" />
+    <Compile Include="Assets\Script\scenes\DoorTriggerImproved.cs" />
     <Compile Include="Assets\Script\scenes\DoorTrigger.cs" />
     <Compile Include="Assets\Script\player\FirstPersonController.cs" />
     <Compile Include="Assets\Script\player\ThirdPersonCamera.cs" />
     <Compile Include="Assets\Script\player\PlayerSpawner.cs" />
+    <Compile Include="Assets\Script\scenes\Blind_Light.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
