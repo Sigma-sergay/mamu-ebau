@@ -1069,12 +1069,12 @@ MonoBehaviour:
   actionType: 1
   sceneName: 
   sceneIndex: -1
+  teleportTargetTransform: {fileID: 0}
   teleportTargetName: govno
   screenFader: {fileID: 1993729967}
   fadeSpeed: 1.5
   openAngle: 90
   animationSpeed: 2
-  promptTextUI: {fileID: 0}
   promptText: "\u041D\u0430\u0442\u0438\u0441\u043D\u0438 E"
   fadeDuration: 0.5
 --- !u!65 &1214870477
@@ -1408,12 +1408,12 @@ MonoBehaviour:
   actionType: 1
   sceneName: 
   sceneIndex: -1
+  teleportTargetTransform: {fileID: 0}
   teleportTargetName: govno
   screenFader: {fileID: 1993729967}
   fadeSpeed: 1.5
   openAngle: 90
   animationSpeed: 2
-  promptTextUI: {fileID: 0}
   promptText: "\u041D\u0430\u0442\u0438\u0441\u043D\u0438 E"
   fadeDuration: 0.5
 --- !u!65 &1246707540
@@ -1781,12 +1781,12 @@ MonoBehaviour:
   actionType: 0
   sceneName: Level_2
   sceneIndex: -1
+  teleportTargetTransform: {fileID: 931906673}
   teleportTargetName: govno
   screenFader: {fileID: 0}
   fadeSpeed: 1.5
   openAngle: 90
   animationSpeed: 2
-  promptTextUI: {fileID: 0}
   promptText: "\u041D\u0430\u0442\u0438\u0441\u043D\u0438 E"
   fadeDuration: 0.5
 --- !u!65 &1796175265

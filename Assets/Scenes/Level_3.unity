@@ -513,8 +513,8 @@ MonoBehaviour:
   interactionZone: {fileID: 0}
   doorModel: {fileID: 0}
   interactKey: 101
-  actionType: 1
-  sceneName: 
+  actionType: 0
+  sceneName: Menu
   sceneIndex: -1
   teleportTargetTransform: {fileID: 0}
   teleportTargetName: govno
@@ -1421,7 +1421,7 @@ MonoBehaviour:
   interactionZone: {fileID: 0}
   doorModel: {fileID: 0}
   interactKey: 101
-  actionType: 0
+  actionType: 1
   sceneName: Level_3
   sceneIndex: -1
   teleportTargetTransform: {fileID: 0}
