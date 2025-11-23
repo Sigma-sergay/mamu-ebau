@@ -1404,7 +1404,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6.24, y: -2.32, z: 5.89}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1849709818}
@@ -1833,31 +1833,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f36cdbfa13011b49b1c9fb421b74d1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  targetOffset: {x: 0, y: 1.5, z: 0}
-  normalDistance: 5
-  minDistance: 0.5
-  mouseSensitivity: 2
-  minVerticalAngle: -40
-  maxVerticalAngle: 80
-  positionSmoothing: 10
-  rotationSmoothing: 8
-  collisionLayers:
-    m_Bits: 4294967295
-  cameraRadius: 0.3
-  enableCameraCollider: 1
-  colliderSize: {x: 0.5, y: 0.5, z: 0.5}
-  enableZoom: 1
-  zoomSpeed: 2
-  minZoomDistance: 2
-  maxZoomDistance: 10
-  currentDistance: 0
-  desiredDistance: 0
-  horizontalAngle: 0
-  verticalAngle: 0
-  currentPosition: {x: 0, y: 0, z: 0}
-  currentRotation: {x: 0, y: 0, z: 0, w: 0}
-  cameraCollider: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

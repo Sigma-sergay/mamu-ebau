@@ -1,357 +1,254 @@
-using UnityEngine;
+п»їusing UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI; // РџРѕС‚СЂС–Р±РЅРѕ РґР»СЏ СЃС‚РІРѕСЂРµРЅРЅСЏ Canvas
 using System.Collections;
-using TMPro;
+using TMPro; // РџРѕС‚СЂС–Р±РЅРѕ РґР»СЏ С‚РµРєСЃС‚Сѓ
 
-// Цей enum можна залишити без змін
-public enum DoorBehavior
+public enum DoorAction
 {
-    LoadScene, // Перехід на наступну сцену (правильні двері)
-    StopGame // Пастка: Телепорт гравця
+    LoadScene,
+    Teleport
 }
 
-// *** КЛАС ПЕРЕЙМЕНОВАНО, ЩОБ УНИКНУТИ КОНФЛІКТУ З ІСНУЮЧИМ DoorTrigger ***
 public class DoorTriggerImproved : MonoBehaviour
 {
-    // --- Налаштування Дверей ---
-    [Header("Door Behavior")]
-    [Tooltip("Визначає дію: перехід на сцену чи пастка/телепорт.")]
-    public DoorBehavior behavior = DoorBehavior.LoadScene;
+    [Header("1. Р“РћР›РћР’РќР† РћР‘'Р„РљРўР")]
+    [Tooltip("Р—РѕРЅР° (РїСЂРѕР·РѕСЂРёР№ РєСѓР±), РєСѓРґРё Р·Р°С…РѕРґРёС‚СЊ РіСЂР°РІРµС†СЊ.")]
+    [SerializeField] private Collider interactionZone;
 
-    // --- Налаштування Взаємодії ---
-    [Header("Interaction Settings")]
+    [Tooltip("РЎР°РјС– РґРІРµСЂС– (3D РјРѕРґРµР»СЊ), СЏРєС– Р±СѓРґСѓС‚СЊ РІС–РґС‡РёРЅСЏС‚РёСЃСЏ.")]
+    [SerializeField] private Transform doorModel;
+
+    [Header("2. РќРђР›РђРЁРўРЈР’РђРќРќРЇ Р”Р†Р‡")]
     public KeyCode interactKey = KeyCode.E;
+    public DoorAction actionType = DoorAction.LoadScene;
 
-    // --- Анімація ---
-    [Header("Animation")]
-    public Transform doorModel;
-    public float openAngle = 90.0f;
-    public float animationSpeed = 2.0f;
-
-    private bool isBusy = false;
-    private Quaternion initialRotation;
-
-    // --- Налаштування Сцени та Спауну ---
-    [Header("Scene Settings")]
+    [Header("-> РЇРєС‰Рѕ LoadScene")]
     public string sceneName;
     public int sceneIndex = -1;
 
-    [Header("Spawn Settings (Використовується для PlayerPrefs)")]
-    public Vector3 spawnPosition = new Vector3(0, 1, 0);
-    public Vector3 spawnRotation = new Vector3(0, 0, 0);
-
-    // --- НОВЕ: Налаштування Телепорту та Смерті ---
-    [Header("Death/Teleport Settings")]
-    [Tooltip("Назва об'єкта, на позицію якого телепортується гравець (наприклад, 'govno').")]
+    [Header("-> РЇРєС‰Рѕ Teleport (РџР°СЃС‚РєР°)")]
+    [Tooltip("РЎСЋРґРё РїРµСЂРµС‚СЏРіРЅРё РѕР±'С”РєС‚, РєСѓРґРё С‚РµР»РµРїРѕСЂС‚СѓРІР°С‚Рё.")]
+    public Transform teleportTargetTransform;
+    [Tooltip("РђР±Рѕ РЅР°РїРёС€Рё С–Рј'СЏ (СЏРєС‰Рѕ Р»С–РЅСЊ С‚СЏРіРЅСѓС‚Рё).")]
     public string teleportTargetName = "govno";
 
-    [Header("Screen Fade (Death)")]
-    [Tooltip("CanvasGroup чорного екрана для плавного переходу при смерті.")]
-    public CanvasGroup screenFaderCanvasGroup;
-    [Tooltip("Швидкість затемнення/посвітлення екрана.")]
-    public float fadeSpeed = 1.5f;
+    [Tooltip("CanvasGroup С‡РѕСЂРЅРѕРіРѕ РµРєСЂР°РЅР° (РјРѕР¶РЅР° РїСѓСЃС‚РёРј).")]
+    public CanvasGroup screenFader;
+    public float fadeSpeed = 1.0f;
 
-    // --- Налаштування UI ---
-    [Header("UI Settings")]
-    public string promptText = "Натисни E";
-    public TextMeshProUGUI promptTextUI;
+    [Header("3. РђРќР†РњРђР¦Р†РЇ")]
+    public float openAngle = 90.0f;
+    public float animationSpeed = 2.0f;
+
+    [Header("4. РђР’РўРћ-РўР•РљРЎРў")]
+    public string promptText = "РќР°С‚РёСЃРЅРё E";
     public float fadeDuration = 0.5f;
 
-    private bool playerNearby = false;
-    private Coroutine activePromptCoroutine;
+    // РџСЂРёРІР°С‚РЅС– Р·РјС–РЅРЅС–
+    private TextMeshProUGUI generatedTextUI; // РЎС‚РІРѕСЂРµРЅРёР№ РєРѕРґРѕРј С‚РµРєСЃС‚
     private CanvasGroup promptCanvasGroup;
-
-    // --- Unity Методи ---
+    private bool playerNearby = false;
+    private bool isBusy = false;
+    private Quaternion initialRotation;
+    private Coroutine promptCoroutine;
 
     void Start()
     {
-        if (doorModel != null)
+        // 1. РќР°Р»Р°С€С‚СѓРІР°РЅРЅСЏ С‚СЂРёРіРµСЂР°
+        if (interactionZone == null)
         {
-            initialRotation = doorModel.localRotation;
+            Debug.LogError("вќЊ РџРћРњРР›РљРђ: РќРµ РїРµСЂРµС‚СЏРіРЅСѓС‚Рѕ 'Interaction Zone'!", this);
+            return;
         }
 
-        if (promptTextUI != null)
+        if (!interactionZone.isTrigger) interactionZone.isTrigger = true;
+        var listener = interactionZone.gameObject.AddComponent<DoorTriggerListener>();
+        listener.Setup(this);
+
+        // 2. Р”РІРµСЂС–
+        if (doorModel != null) initialRotation = doorModel.localRotation;
+
+        // 3. РђР’РўРћРњРђРўРР§РќР• РЎРўР’РћР Р•РќРќРЇ UI (РњР°РіС–СЏ С‚СѓС‚)
+        SetupAutoUI();
+
+        // 4. Р•РєСЂР°РЅ
+        if (screenFader != null)
         {
-            promptCanvasGroup = promptTextUI.GetComponent<CanvasGroup>();
-            if (promptCanvasGroup == null)
-            {
-                Debug.LogError($"На '{promptTextUI.name}' відсутній компонент CanvasGroup! Додайте CanvasGroup до елементу UI.", this);
-            }
-            else
-            {
-                promptTextUI.text = promptText;
-                promptCanvasGroup.alpha = 0;
-            }
+            screenFader.alpha = 0;
+            screenFader.blocksRaycasts = false;
+        }
+    }
+
+    // --- РњРђР“Р†РЇ РЎРўР’РћР Р•РќРќРЇ РўР•РљРЎРўРЈ ---
+    private void SetupAutoUI()
+    {
+        // РЁСѓРєР°С”РјРѕ Canvas. РЇРєС‰Рѕ РЅРµРјР°С” - СЃС‚РІРѕСЂСЋС”РјРѕ.
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (canvas == null)
+        {
+            GameObject canvasObj = new GameObject("Auto_Level_Canvas");
+            canvas = canvasObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvasObj.AddComponent<CanvasScaler>();
+            canvasObj.AddComponent<GraphicRaycaster>();
         }
 
-        // Перевірка фейдера (опціонально)
-        if (screenFaderCanvasGroup != null)
-        {
-            // Переконаємося, що фейдер спочатку прозорий і дозволяє взаємодію
-            if (screenFaderCanvasGroup.alpha != 0)
-                screenFaderCanvasGroup.alpha = 0;
-            screenFaderCanvasGroup.blocksRaycasts = false;
-            screenFaderCanvasGroup.interactable = false;
-        }
+        // РЎС‚РІРѕСЂСЋС”РјРѕ РѕР±'С”РєС‚ С‚РµРєСЃС‚Сѓ
+        GameObject textObj = new GameObject($"DoorPrompt_{gameObject.name}");
+        textObj.transform.SetParent(canvas.transform, false);
+
+        // Р”РѕРґР°С”РјРѕ TextMeshPro
+        generatedTextUI = textObj.AddComponent<TextMeshProUGUI>();
+        generatedTextUI.text = promptText;
+        generatedTextUI.fontSize = 36;
+        generatedTextUI.alignment = TextAlignmentOptions.Center;
+        generatedTextUI.color = Color.white;
+
+        // РќР°Р»Р°С€С‚СѓРІР°РЅРЅСЏ РїРѕР·РёС†С–С— (Р’РЅРёР·Сѓ РїРѕ С†РµРЅС‚СЂСѓ)
+        RectTransform rt = textObj.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.1f); // 10% РІС–Рґ РЅРёР·Сѓ
+        rt.anchorMax = new Vector2(0.5f, 0.1f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(500, 100);
+
+        // Р”РѕРґР°С”РјРѕ CanvasGroup РґР»СЏ С„РµР№РґСѓ
+        promptCanvasGroup = textObj.AddComponent<CanvasGroup>();
+        promptCanvasGroup.alpha = 0; // РҐРѕРІР°С”РјРѕ РѕРґСЂР°Р·Сѓ
+        promptCanvasGroup.blocksRaycasts = false;
     }
 
     void Update()
     {
         if (playerNearby && Input.GetKeyDown(interactKey) && !isBusy)
         {
-            TryOpenDoor();
+            StartCoroutine(PerformSequence());
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    // --- Р›РћР“Р†РљРђ Р”Р†Р™ ---
+    private IEnumerator PerformSequence()
     {
-        if (other.CompareTag("Player"))
-        {
-            playerNearby = true;
-            if (promptTextUI != null && promptCanvasGroup != null && !isBusy)
-            {
-                if (activePromptCoroutine != null)
-                {
-                    StopCoroutine(activePromptCoroutine);
-                }
-                activePromptCoroutine = StartCoroutine(FadePrompt(1));
-            }
-        }
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerNearby = false;
-            if (promptTextUI != null && promptCanvasGroup != null)
-            {
-                if (activePromptCoroutine != null)
-                {
-                    StopCoroutine(activePromptCoroutine);
-                }
-                activePromptCoroutine = StartCoroutine(FadePrompt(0));
-            }
-        }
-    }
-
-    // --- Логіка Дверей ---
-
-    public void TryOpenDoor()
-    {
-        if (doorModel == null)
-        {
-            Debug.LogError("Не вказано 'Door Model' в інспекторі! Анімація неможлива.", this);
-            return;
-        }
-
-        // Приховуємо підказку незалежно від результату
-        if (activePromptCoroutine != null) StopCoroutine(activePromptCoroutine);
-        if (promptCanvasGroup != null) StartCoroutine(FadePrompt(0));
-
         isBusy = true;
-        if (behavior == DoorBehavior.LoadScene)
+        ShowPrompt(false);
+
+        // Р’С–РґРєСЂРёС‚С‚СЏ РґРІРµСЂРµР№
+        if (doorModel != null)
         {
-            Debug.Log($"[DoorTrigger] Правильні двері! Відкриваю... -> Сцена: {(sceneIndex >= 0 ? sceneIndex.ToString() : sceneName)}");
-            StartCoroutine(AnimateDoorAndLoadScene());
-        }
-        else if (behavior == DoorBehavior.StopGame)
-        {
-            // ШЛЯХ СМЕРТІ
-            Debug.Log("[DoorTrigger] Пастка! Смерть та Телепорт.");
-            StartCoroutine(AnimateWrongDoor());
-        }
-    }
-
-    // --- Анімація та Перехід ---
-
-    private IEnumerator AnimateDoorAndLoadScene()
-    {
-        // Анімація відкриття
-        Quaternion targetRotation = initialRotation * Quaternion.Euler(0, openAngle, 0); // Поворот навколо Y, як зазвичай для дверей
-        float t = 0;
-
-        while (t < 1)
-        {
-            doorModel.localRotation = Quaternion.Slerp(initialRotation, targetRotation, t);
-            t += Time.deltaTime * animationSpeed;
-            yield return null;
-        }
-        doorModel.localRotation = targetRotation;
-
-        yield return new WaitForSeconds(1.0f);
-        LoadNextScene();
-    }
-
-    private IEnumerator AnimateWrongDoor()
-    {
-        // 1. Анімація "похитування" дверей (паніка)
-        float jiggleAngle = 5f;
-        float duration = 0.1f;
-        int shakeCount = 3;
-
-        for (int i = 0; i < shakeCount; i++)
-        {
-            Quaternion targetJiggle = initialRotation * Quaternion.Euler(0, jiggleAngle, 0);
-            yield return AnimateRotation(doorModel.localRotation, targetJiggle, duration);
-            yield return AnimateRotation(doorModel.localRotation, initialRotation, duration);
+            Quaternion targetRotation = initialRotation * Quaternion.Euler(0, openAngle, 0);
+            float t = 0;
+            while (t < 1f)
+            {
+                t += Time.deltaTime * animationSpeed;
+                doorModel.localRotation = Quaternion.Slerp(initialRotation, targetRotation, t);
+                yield return null;
+            }
         }
 
-        doorModel.localRotation = initialRotation;
         yield return new WaitForSeconds(0.5f);
 
-        // 2. ЕКРАН ПОВНІСТЮ ТЕМНІШАЄ (СМЕРТЬ/ЗАКРИТТЯ ОЧЕЙ)
-        Debug.Log("Екран темнішає...");
-        if (screenFaderCanvasGroup != null) screenFaderCanvasGroup.blocksRaycasts = true; // Блокуємо керування
-        yield return StartCoroutine(FadeScreen(1));
-
-        // 3. ТЕЛЕПОРТ
-        TeleportPlayerToTarget();
-        Debug.Log("Гравець телепортований.");
-
-        // 4. ЕКРАН ПОВЕРТАЄТЬСЯ (ПОЧАТОК ЗНОВУ)
-        Debug.Log("Екран світлішає.");
-        yield return StartCoroutine(FadeScreen(0));
-        if (screenFaderCanvasGroup != null) screenFaderCanvasGroup.blocksRaycasts = false; // Розблоковуємо керування
-
-        isBusy = false;
-        // Перевіряємо, чи гравець все ще поряд (наприклад, якщо точка спауну поряд з дверима-пасткою)
-        if (playerNearby && promptCanvasGroup != null)
-        {
-            activePromptCoroutine = StartCoroutine(FadePrompt(1));
-        }
+        if (actionType == DoorAction.LoadScene) LoadLevel();
+        else if (actionType == DoorAction.Teleport) yield return StartCoroutine(DoTeleportSequence());
     }
 
-    private IEnumerator AnimateRotation(Quaternion fromRot, Quaternion toRot, float duration)
+    private void LoadLevel()
     {
-        float t = 0;
-        float rate = 1.0f / duration;
-        while (t < 1.0f)
-        {
-            t += Time.deltaTime * rate;
-            doorModel.localRotation = Quaternion.Slerp(fromRot, toRot, t);
-            yield return null;
-        }
-        doorModel.localRotation = toRot;
-    }
-
-    /// <summary>
-    /// Зберігає позицію спауну та завантажує наступну сцену (LoadScene Behavior).
-    /// </summary>
-    public void LoadNextScene()
-    {
-        if (string.IsNullOrEmpty(sceneName) && sceneIndex < 0)
-        {
-            Debug.LogError("Неможливо перейти! Не вказано жодної сцени!", this);
-            isBusy = false;
-            return;
-        }
-
-        // Зберігання PlayerPrefs (поки що тут немає логіки зберігання, але це правильне місце)
-        // Наприклад: PlayerPrefs.SetFloat("SpawnX", spawnPosition.x);
+        Debug.Log("Р—Р°РІР°РЅС‚Р°Р¶РµРЅРЅСЏ СЃС†РµРЅРё...");
         PlayerPrefs.Save();
+        if (sceneIndex >= 0) SceneManager.LoadScene(sceneIndex);
+        else if (!string.IsNullOrEmpty(sceneName)) SceneManager.LoadScene(sceneName);
+    }
 
-        if (sceneIndex >= 0)
+    private IEnumerator DoTeleportSequence()
+    {
+        // Р—Р°С‚РµРјРЅРµРЅРЅСЏ
+        if (screenFader != null)
         {
-            SceneManager.LoadScene(sceneIndex);
+            screenFader.blocksRaycasts = true;
+            yield return StartCoroutine(FadeCanvas(screenFader, 1f, 1f / fadeSpeed));
         }
-        else if (!string.IsNullOrEmpty(sceneName))
+
+        yield return new WaitForSeconds(1.0f); // РџР°СѓР·Р° РЅР° С‡РѕСЂРЅРѕРјСѓ РµРєСЂР°РЅС–
+
+        // РўРµР»РµРїРѕСЂС‚
+        Transform target = teleportTargetTransform;
+        if (target == null)
         {
-            SceneManager.LoadScene(sceneName);
+            GameObject obj = GameObject.Find(teleportTargetName);
+            if (obj != null) target = obj.transform;
+        }
+
+        GameObject player = GameObject.FindWithTag("Player");
+
+        if (target != null && player != null)
+        {
+            CharacterController cc = player.GetComponent<CharacterController>();
+            if (cc != null) cc.enabled = false;
+            player.transform.position = target.position;
+            player.transform.rotation = target.rotation;
+            if (cc != null) cc.enabled = true;
+            Debug.Log("РўРµР»РµРїРѕСЂС‚ СѓСЃРїС–С€РЅРёР№.");
         }
         else
         {
-            Debug.LogError("Неможливо перейти! Не вказано жодної сцени!", this);
-            isBusy = false;
+            Debug.LogError("РџРѕРјРёР»РєР° С‚РµР»РµРїРѕСЂС‚Сѓ: РЅРµ Р·РЅР°Р№РґРµРЅРѕ С†С–Р»СЊ Р°Р±Рѕ РіСЂР°РІС†СЏ.");
         }
+
+        // Р—Р°РєСЂРёС‚С‚СЏ РґРІРµСЂРµР№
+        if (doorModel != null) doorModel.localRotation = initialRotation;
+
+        yield return new WaitForSeconds(0.5f);
+
+        // РћСЃРІС–С‚Р»РµРЅРЅСЏ
+        if (screenFader != null)
+        {
+            yield return StartCoroutine(FadeCanvas(screenFader, 0f, 1f / fadeSpeed));
+            screenFader.blocksRaycasts = false;
+        }
+
+        isBusy = false;
+        if (playerNearby) ShowPrompt(true);
     }
 
-    /// <summary>
-    /// Телепортує гравця до цільового об'єкта ("govno").
-    /// </summary>
-    private void TeleportPlayerToTarget()
+    // --- UI РњР•РўРћР”Р ---
+    public void OnPlayerEnter()
     {
-        GameObject targetObject = GameObject.Find(teleportTargetName);
-        GameObject player = GameObject.FindWithTag("Player");
-
-        if (targetObject == null)
-        {
-            Debug.LogError($"Неможливо знайти об'єкт '{teleportTargetName}' для телепорту. Телепорт скасовано.");
-            return;
-        }
-
-        if (player == null)
-        {
-            Debug.LogError("Неможливо знайти об'єкт гравця з тегом 'Player'. Телепорт скасовано.");
-            return;
-        }
-
-        // *** Логіка скидання та телепорту ***
-        // Зберігаємо компонент, щоб керувати його увімкненням/вимкненням
-        CharacterController cc = player.GetComponent<CharacterController>();
-        if (cc != null) cc.enabled = false;
-
-        // Телепорт
-        player.transform.position = targetObject.transform.position;
-        player.transform.rotation = targetObject.transform.rotation;
-
-        // Скидаємо швидкість (для Rigidbody)
-        Rigidbody rb = player.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
-
-        // Повертаємо контролер
-        if (cc != null) cc.enabled = true;
-
-        Debug.Log($"Гравець успішно телепортований до '{teleportTargetName}'!");
+        playerNearby = true;
+        if (!isBusy) ShowPrompt(true);
     }
 
-    // --- Корутина для фейду екрана ---
-    private IEnumerator FadeScreen(float targetAlpha)
+    public void OnPlayerExit()
     {
-        if (screenFaderCanvasGroup == null)
-        {
-            Debug.LogWarning("CanvasGroup для фейдера не підключено! Фейд не відбудеться.");
-            yield break;
-        }
+        playerNearby = false;
+        ShowPrompt(false);
+    }
 
-        float startAlpha = screenFaderCanvasGroup.alpha;
+    private void ShowPrompt(bool show)
+    {
+        if (promptCanvasGroup == null) return;
+        if (promptCoroutine != null) StopCoroutine(promptCoroutine);
+        promptCoroutine = StartCoroutine(FadeCanvas(promptCanvasGroup, show ? 1 : 0, fadeDuration));
+    }
+
+    private IEnumerator FadeCanvas(CanvasGroup cg, float target, float duration)
+    {
+        float start = cg.alpha;
         float time = 0;
-        // Щоб уникнути ділення на нуль, якщо fadeSpeed = 0
-        if (fadeSpeed <= 0) fadeSpeed = 0.01f;
-        float duration = 1f / fadeSpeed;
-
         while (time < duration)
         {
             time += Time.deltaTime;
-            screenFaderCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, time / duration);
+            cg.alpha = Mathf.Lerp(start, target, time / duration);
             yield return null;
         }
-        screenFaderCanvasGroup.alpha = targetAlpha;
+        cg.alpha = target;
     }
+}
 
-    // --- Корутина для тексту UI (без змін) ---
-    private IEnumerator FadePrompt(float targetAlpha)
-    {
-        if (promptCanvasGroup == null) yield break;
-
-        float startAlpha = promptCanvasGroup.alpha;
-        float t = 0;
-
-        while (t < fadeDuration)
-        {
-            t += Time.deltaTime;
-            promptCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, t / fadeDuration);
-            yield return null;
-        }
-        promptCanvasGroup.alpha = targetAlpha;
-
-        if (targetAlpha == 0)
-        {
-            activePromptCoroutine = null;
-        }
-    }
+// РЎР»СѓС…Р°С‡ С‚СЂРёРіРµСЂР°
+public class DoorTriggerListener : MonoBehaviour
+{
+    private DoorTriggerImproved parentScript;
+    public void Setup(DoorTriggerImproved parent) { parentScript = parent; }
+    void OnTriggerEnter(Collider other) { if (other.CompareTag("Player") && parentScript != null) parentScript.OnPlayerEnter(); }
+    void OnTriggerExit(Collider other) { if (other.CompareTag("Player") && parentScript != null) parentScript.OnPlayerExit(); }
 }

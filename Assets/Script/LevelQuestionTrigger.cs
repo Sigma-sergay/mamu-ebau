@@ -1,15 +1,16 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement; // <--- ОБОВ'ЯЗКОВО ДЛЯ ЗАВАНТАЖЕННЯ СЦЕН
 
 public class LevelQuestionTrigger : MonoBehaviour
 {
-    // --- ТЕКСТ ПИТАННЯ (Пишемо прямо на об'єкті) ---
+    // --- ТЕКСТ ПИТАННЯ ---
     [Header("Текст Питання")]
     [TextArea(3, 10)]
     public string questionText = "Напишіть сюди ваше питання...";
 
-    [Tooltip("Текст, який з'явиться, коли час вийде.")]
+    [Tooltip("Текст, який з'явиться, коли час вийде (перед завантаженням меню).")]
     public string timeOutText = "Час вийшов!";
 
     // --- НАЛАШТУВАННЯ UI ---
@@ -20,19 +21,21 @@ public class LevelQuestionTrigger : MonoBehaviour
     [Tooltip("Перетягніть сюди CanvasGroup (на батьківському об'єкті тексту).")]
     public CanvasGroup questionCanvasGroup;
 
-    // --- НАЛАШТУВАННЯ ЧАСУ ---
-    [Header("Таймер")]
+    // --- НАЛАШТУВАННЯ ЧАСУ ТА СЦЕНИ ---
+    [Header("Налаштування")]
     [Tooltip("Скільки секунд показувати питання.")]
     public float timeLimitSeconds = 30f;
 
-    [Tooltip("Як швидко текст з'являється/зникає (сек).")]
+    [Tooltip("Назва сцени, яку завантажити після смерті (наприклад, Menu).")]
+    public string timeOutSceneName = "Menu"; // <--- НОВЕ ПОЛЕ
+
+    [Tooltip("Як швидко текст з'являється (сек).")]
     public float fadeDuration = 1.0f;
 
     [Tooltip("Тег гравця.")]
     public string playerTag = "Player";
 
     private bool isActive = false;
-    private Coroutine activeCoroutine;
 
     void Start()
     {
@@ -42,60 +45,59 @@ public class LevelQuestionTrigger : MonoBehaviour
             questionCanvasGroup.alpha = 0;
             questionCanvasGroup.blocksRaycasts = false;
         }
-        else
-        {
-            Debug.LogError("Не забудьте прикріпити CanvasGroup в інспекторі!", this);
-        }
     }
 
     void OnTriggerEnter(Collider other)
     {
-        // Якщо зайшов гравець і тригер ще не активований
         if (other.CompareTag(playerTag) && !isActive)
         {
-            StartCoroutine(ShowQuestionRoutine());
+            StartCoroutine(ShowQuestionAndFailRoutine());
         }
     }
 
-    private IEnumerator ShowQuestionRoutine()
+    private IEnumerator ShowQuestionAndFailRoutine()
     {
         isActive = true;
 
         // 1. Встановлюємо текст питання
-        if (questionTextUI != null)
-        {
-            questionTextUI.text = questionText;
-        }
+        if (questionTextUI != null) questionTextUI.text = questionText;
 
-        // 2. Плавно показуємо (Fade In)
+        // 2. Плавно показуємо
         yield return StartCoroutine(FadeUI(1));
 
         Debug.Log("Питання показано, таймер пішов...");
 
-        // 3. Чекаємо 30 секунд (або скільки вказано)
+        // 3. Чекаємо 30 секунд
         yield return new WaitForSeconds(timeLimitSeconds);
 
-        Debug.Log("Час вийшов.");
+        // 4. Час вийшов! Показуємо текст поразки
+        if (questionTextUI != null) questionTextUI.text = timeOutText;
+        Debug.Log("Час вийшов. Завантаження меню...");
 
-        // 4. Міняємо текст на "Час вийшов"
-        if (questionTextUI != null)
-        {
-            questionTextUI.text = timeOutText;
-        }
+        // 5. Чекаємо 2 секунди, щоб гравець встиг прочитати "Час вийшов"
+        yield return new WaitForSeconds(2.0f);
 
-        // 5. Чекаємо ще трохи (3 сек), щоб гравець прочитав, що час вийшов
-        yield return new WaitForSeconds(3.0f);
-
-        // 6. Плавно ховаємо (Fade Out)
-        yield return StartCoroutine(FadeUI(0));
-
-        // Опціонально: знищити тригер, щоб він більше не спрацьовував
-        // Destroy(gameObject); 
-
-        isActive = false; // Якщо хочете, щоб можна було активувати повторно, залиште false
+        // 6. ЗАВАНТАЖУЄМО МЕНЮ
+        LoadMenuScene();
     }
 
-    // Допоміжна функція для плавної прозорості
+    private void LoadMenuScene()
+    {
+        // Перевіряємо, чи вписали назву сцени
+        if (!string.IsNullOrEmpty(timeOutSceneName))
+        {
+            // Розблокуємо курсор, якщо він був схований (для меню це важливо)
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            SceneManager.LoadScene(timeOutSceneName);
+        }
+        else
+        {
+            Debug.LogError("Не вказано назву сцени (Time Out Scene Name) в інспекторі!");
+        }
+    }
+
     private IEnumerator FadeUI(float targetAlpha)
     {
         if (questionCanvasGroup == null) yield break;
