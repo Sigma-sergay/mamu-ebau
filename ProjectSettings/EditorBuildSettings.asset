@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/corridor.unity
     guid: f29b33b8ee7ed2749be5c9dd6fe0628d
+  - enabled: 1
+    path: Assets/Scenes/Level_2.unity
+    guid: 112a4e19bba903d4490301ea0d344e16
   m_configObjects: {}

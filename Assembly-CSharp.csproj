@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{469D6D6B-7B64-25B2-A836-0B881C67982D}</ProjectGuid>
+    <ProjectGuid>{AB576F7B-38AD-ACDC-E0D2-1A5ACCCDB8DE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -60,11 +60,21 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
+    <Compile Include="Assets\Scenes\Menu\Script\Light.cs" />
+=======
     <Compile Include="Assets\Scenes\Menu\Button.cs" />
+    <Compile Include="Assets\Script\scenes\DoorTriggerImproved.cs" />
+>>>>>>> ec922b0619b043195b2bf2feb67266df0ff65065
     <Compile Include="Assets\Script\scenes\DoorTrigger.cs" />
     <Compile Include="Assets\Script\player\FirstPersonController.cs" />
-    <Compile Include="Assets\Script\player\ThirdPersonCamera.cs" />
     <Compile Include="Assets\Script\player\PlayerSpawner.cs" />
+<<<<<<< HEAD
+    <Compile Include="Assets\Scenes\Menu\Script\Button.cs" />
+=======
+    <Compile Include="Assets\Script\LevelQuestionTrigger.cs" />
+    <Compile Include="Assets\Script\scenes\Blind_Light.cs" />
+>>>>>>> ec922b0619b043195b2bf2feb67266df0ff65065
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

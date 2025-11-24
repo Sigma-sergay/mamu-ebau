@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ThirdPersonController : MonoBehaviour
+public class FirstPersonController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float walkSpeed = 5f;
@@ -8,13 +8,17 @@ public class ThirdPersonController : MonoBehaviour
     public float jumpForce = 5f;
     public float gravity = -9.81f;
 
-    [Header("Rotation Settings")]
-    [Tooltip("Швидкість повороту гравця до напрямку руху")]
-    public float rotationSpeed = 10f;
+    [Header("Acceleration Settings")]
+    [Tooltip("Швидкість розгону/гальмування")]
+    public float acceleration = 10f;
 
-    [Header("Camera Settings")]
-    [Tooltip("Камера яка контролює напрямок руху")]
-    public Transform cameraTransform;
+    [Header("Mouse Look Settings")]
+    public float mouseSensitivity = 2f;
+    public float maxLookAngle = 80f;
+
+    [Header("Camera Smoothing")]
+    [Tooltip("Згладжування камери (0 = вимкнено, 10+ = плавно)")]
+    public float cameraSmoothSpeed = 0f;
 
     [Header("Ground Check")]
     public Transform groundCheck;
@@ -23,10 +27,18 @@ public class ThirdPersonController : MonoBehaviour
 
     // Components
     private CharacterController controller;
+    private Camera playerCamera;
 
     // Movement
     private Vector3 velocity;
     private bool isGrounded;
+    private Vector3 currentVelocity;
+
+    // Camera rotation
+    private float rotationX = 0f;
+    private float rotationY = 0f;
+    private float currentRotationX = 0f;
+    private float currentRotationY = 0f;
 
     void Start()
     {
@@ -43,14 +55,19 @@ public class ThirdPersonController : MonoBehaviour
             controller.center = new Vector3(0, 1f, 0);
         }
 
-        // Знайти камеру якщо не призначена
-        if (cameraTransform == null)
+        // Знайти або створити камеру
+        playerCamera = GetComponentInChildren<Camera>();
+        if (playerCamera == null)
         {
-            Camera mainCam = Camera.main;
-            if (mainCam != null)
-            {
-                cameraTransform = mainCam.transform;
-            }
+            playerCamera = Camera.main;
+        }
+
+        // Якщо камера не дочірня - зробити її дочірньою
+        if (playerCamera != null && playerCamera.transform.parent != transform)
+        {
+            playerCamera.transform.SetParent(transform);
+            playerCamera.transform.localPosition = new Vector3(0, 1.6f, 0);
+            playerCamera.transform.localRotation = Quaternion.identity;
         }
 
         // Auto-create groundCheck if not assigned
@@ -94,52 +111,66 @@ public class ThirdPersonController : MonoBehaviour
 
     void Update()
     {
+        HandleMouseLook();
         HandleMovement();
         HandleJump();
+    }
+
+    void HandleMouseLook()
+    {
+        // Отримання вводу миші
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+
+        // Оновлення цільових кутів
+        rotationY += mouseX;
+        rotationX -= mouseY;
+        rotationX = Mathf.Clamp(rotationX, -maxLookAngle, maxLookAngle);
+
+        // Плавне обертання (якщо увімкнено згладжування)
+        if (cameraSmoothSpeed > 0)
+        {
+            currentRotationY = Mathf.Lerp(currentRotationY, rotationY, cameraSmoothSpeed * Time.deltaTime);
+            currentRotationX = Mathf.Lerp(currentRotationX, rotationX, cameraSmoothSpeed * Time.deltaTime);
+        }
+        else
+        {
+            // Без згладжування - миттєве обертання
+            currentRotationY = rotationY;
+            currentRotationX = rotationX;
+        }
+
+        // Обертання гравця по горизонталі
+        transform.rotation = Quaternion.Euler(0f, currentRotationY, 0f);
+
+        // Обертання камери по вертикалі
+        if (playerCamera != null)
+        {
+            playerCamera.transform.localRotation = Quaternion.Euler(currentRotationX, 0f, 0f);
+        }
     }
 
     void HandleMovement()
     {
         isGrounded = CheckGround();
 
-        // Отримання вводу
+        // Отримання вводу WASD
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
 
-        // Якщо немає камери, використовуємо локальні осі гравця (як раніше)
-        Vector3 move;
-        if (cameraTransform != null)
-        {
-            // Рух відносно камери (правильно для 3-ї особи)
-            Vector3 cameraForward = cameraTransform.forward;
-            Vector3 cameraRight = cameraTransform.right;
+        // Цільовий напрямок руху
+        Vector3 targetDirection = transform.right * moveX + transform.forward * moveZ;
 
-            // Ігноруємо вертикальну складову камери
-            cameraForward.y = 0;
-            cameraRight.y = 0;
+        // Швидкість (біг або ходьба)
+        float targetSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
 
-            cameraForward.Normalize();
-            cameraRight.Normalize();
+        // Цільова швидкість руху
+        Vector3 targetVelocity = targetDirection * targetSpeed;
 
-            move = cameraRight * moveX + cameraForward * moveZ;
-        }
-        else
-        {
-            // Якщо немає камери, рух відносно гравця
-            move = transform.right * moveX + transform.forward * moveZ;
-        }
+        // Плавне прискорення/гальмування
+        currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, acceleration * Time.deltaTime);
 
-        // Поворот гравця в напрямку руху
-        if (move.magnitude > 0.1f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(move);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
-
-        // Швидкість руху
-        float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
-
-        controller.Move(move * currentSpeed * Time.deltaTime);
+        controller.Move(currentVelocity * Time.deltaTime);
 
         // Гравітація
         if (isGrounded && velocity.y < 0)
