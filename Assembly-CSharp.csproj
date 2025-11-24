@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{2F9C2FEF-4978-28CC-6271-602CCCED13A6}</ProjectGuid>
+    <ProjectGuid>{469D6D6B-7B64-25B2-A836-0B881C67982D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -60,13 +60,16 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scenes\Menu\Button.cs" />
+    <Compile Include="Assets\Script\scenes\PlayerSpawnHandler.cs" />
+    <Compile Include="Assets\Scenes\Menu\Script\Light.cs" />
     <Compile Include="Assets\Script\scenes\DoorTriggerImproved.cs" />
     <Compile Include="Assets\Script\scenes\DoorTrigger.cs" />
     <Compile Include="Assets\Script\player\FirstPersonController.cs" />
+    <Compile Include="Assets\Script\player\ThirdPersonCamera.cs" />
     <Compile Include="Assets\Script\player\PlayerSpawner.cs" />
     <Compile Include="Assets\Script\LevelQuestionTrigger.cs" />
     <Compile Include="Assets\Script\scenes\Blind_Light.cs" />
+    <Compile Include="Assets\Scenes\Menu\Script\Button.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
