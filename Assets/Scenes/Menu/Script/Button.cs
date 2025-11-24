@@ -8,9 +8,16 @@ public class Button : MonoBehaviour
         SceneManager.LoadScene("SampleScene"); 
     }
 
-    public void ExitGame()
+    public void QuitApplication()
     {
-        Debug.Log("Game Closed");
+        Debug.Log("Вихід з гри...");
+
+        
         Application.Quit();
+
+       
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 }
