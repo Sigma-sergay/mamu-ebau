@@ -1237,13 +1237,14 @@ MonoBehaviour:
   actionType: 1
   sceneName: 
   sceneIndex: -1
+  spawnPosition: {x: 0, y: 1, z: 0}
   teleportTargetTransform: {fileID: 0}
   teleportTargetName: govno
   screenFader: {fileID: 1993729967}
   fadeSpeed: 1.5
   openAngle: 90
   animationSpeed: 2
-  promptText: "\u041D\u0430\u0442\u0438\u0441\u043D\u0438 E"
+  promptText: "\u041C\u0438\u043D\u0443\u043B\u0435"
   fadeDuration: 0.5
 --- !u!65 &1214870477
 BoxCollider:
@@ -1687,13 +1688,14 @@ MonoBehaviour:
   actionType: 1
   sceneName: 
   sceneIndex: -1
+  spawnPosition: {x: 0, y: 1, z: 0}
   teleportTargetTransform: {fileID: 0}
   teleportTargetName: govno
   screenFader: {fileID: 1993729967}
   fadeSpeed: 1.5
   openAngle: 90
   animationSpeed: 2
-  promptText: "\u041D\u0430\u0442\u0438\u0441\u043D\u0438 E"
+  promptText: "\u0422\u0435\u043F\u0435\u0440\u0456\u0448\u043D\u0456\u0439 \u043C\u043E\u043C\u0435\u043D\u0442"
   fadeDuration: 0.5
 --- !u!65 &1246707540
 BoxCollider:
@@ -1825,6 +1827,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f36cdbfa13011b49b1c9fb421b74d1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  targetOffset: {x: 0, y: 1.5, z: 0}
+  normalDistance: 5
+  minDistance: 0.5
+  mouseSensitivity: 2
+  rotationSpeed: 5
+  minVerticalAngle: -40
+  maxVerticalAngle: 80
+  positionSmoothing: 10
+  rotationSmoothing: 8
+  collisionLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  cameraRadius: 0.3
+  enableCameraCollider: 1
+  colliderSize: {x: 0.5, y: 0.5, z: 0.5}
+  enableZoom: 1
+  zoomSpeed: 2
+  minZoomDistance: 2
+  maxZoomDistance: 10
 --- !u!81 &1320007286
 AudioListener:
   m_ObjectHideFlags: 0
@@ -2165,13 +2187,14 @@ MonoBehaviour:
   actionType: 0
   sceneName: Level_2
   sceneIndex: -1
+  spawnPosition: {x: 0, y: 1, z: 0}
   teleportTargetTransform: {fileID: 931906673}
   teleportTargetName: govno
   screenFader: {fileID: 0}
   fadeSpeed: 1.5
   openAngle: 90
   animationSpeed: 2
-  promptText: "\u041D\u0430\u0442\u0438\u0441\u043D\u0438 E"
+  promptText: "\u041C\u0430\u0439\u0431\u0443\u0442\u043D\u0454"
   fadeDuration: 0.5
 --- !u!65 &1796175265
 BoxCollider:
