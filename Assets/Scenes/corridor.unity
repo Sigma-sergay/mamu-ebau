@@ -1450,24 +1450,65 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 815cd04199528f345b16900fe9ceac69, type: 2}
     - target: {fileID: 5958438921693756439, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
+<<<<<<< HEAD
+      propertyPath: m_Type
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5958438921693756439, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
+      propertyPath: m_Range
+      value: 15.929264
+      objectReference: {fileID: 0}
+    - target: {fileID: 5958438921693756439, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
+      propertyPath: m_Color.b
+      value: 0.16929148
+      objectReference: {fileID: 0}
+    - target: {fileID: 5958438921693756439, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
+      propertyPath: m_Color.g
+      value: 0.20612834
+      objectReference: {fileID: 0}
+    - target: {fileID: 5958438921693756439, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
+      propertyPath: m_Color.r
+      value: 0.22264141
+      objectReference: {fileID: 0}
+    - target: {fileID: 5958438921693756439, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
+      propertyPath: m_Intensity
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 5958438921693756439, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
+      propertyPath: m_SpotAngle
+      value: 139.30194
+=======
       propertyPath: m_Range
       value: 55.01
       objectReference: {fileID: 0}
     - target: {fileID: 5958438921693756439, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
       propertyPath: m_Intensity
       value: 2.6
+>>>>>>> ec922b0619b043195b2bf2feb67266df0ff65065
       objectReference: {fileID: 0}
     - target: {fileID: 6830945432629781959, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
       propertyPath: m_LocalPosition.x
       value: -18.68
       objectReference: {fileID: 0}
     - target: {fileID: 7800219917424603212, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 6.53
+      objectReference: {fileID: 0}
+    - target: {fileID: 7800219917424603212, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
       propertyPath: m_LocalPosition.y
+<<<<<<< HEAD
+      value: 7.34
+      objectReference: {fileID: 0}
+    - target: {fileID: 7800219917424603212, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 13.39
+=======
       value: 5.15
       objectReference: {fileID: 0}
     - target: {fileID: 8416272007918961125, guid: ad7d7c6bb78843c4f9e3fae9769691fb, type: 3}
       propertyPath: m_TagString
       value: Ground
+>>>>>>> ec922b0619b043195b2bf2feb67266df0ff65065
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
