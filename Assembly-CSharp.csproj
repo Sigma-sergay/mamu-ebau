@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Script\scenes\PlayerSpawnHandler.cs" />
     <Compile Include="Assets\Scenes\Menu\Script\Light.cs" />
+    <Compile Include="Assets\Script\TutorialTrigger.cs" />
     <Compile Include="Assets\Script\scenes\DoorTriggerImproved.cs" />
     <Compile Include="Assets\Script\scenes\DoorTrigger.cs" />
     <Compile Include="Assets\Script\player\FirstPersonController.cs" />
