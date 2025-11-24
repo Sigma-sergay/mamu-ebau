@@ -1,4 +1,4 @@
-using UnityEngine;
+п»їusing UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
@@ -18,17 +18,28 @@ public class DoorTrigger : MonoBehaviour
 
     [Header("UI Settings")]
     public bool showPrompt = true;
-    public string promptText = "Натисни E щоб відкрити двері";
+    public string promptText = "РќР°С‚РёСЃРЅРё E С‰РѕР± РІС–РґРєСЂРёС‚Рё РґРІРµСЂС–";
+
+    [Tooltip("Р РѕР·РјС–СЂ С‚РµРєСЃС‚Сѓ РїС–РґРєР°Р·РєРё")]
+    [Range(20, 100)]
+    public int textSize = 48;
+
+    [Header("Door Animation")]
+    [Tooltip("РљСѓС‚ РІС–РґРєСЂРёРІР°РЅРЅСЏ РґРІРµСЂРµР№ РЅР°РІРєРѕР»Рѕ РѕСЃС– Z (РІ РіСЂР°РґСѓСЃР°С…). РќР°РїС–РІРѕР±РµСЂС‚ = 180.")]
+    public float openAngle = 90f; // Р·РјС–РЅРё РЅР° 180f, СЏРєС‰Рѕ С…РѕС‡РµС€ РїРѕРІРЅРёР№ РЅР°РїС–РІРѕР±РµСЂС‚
+
+    [Tooltip("РЁРІРёРґРєС–СЃС‚СЊ РІС–РґРєСЂРёРІР°РЅРЅСЏ РґРІРµСЂРµР№ (1 = Р·Р° 1 СЃРµРєСѓРЅРґСѓ)")]
+    public float openSpeed = 2f;
 
     [Header("Sound Settings")]
-    [Tooltip("Перетягни сюди звук, який грає коли гравець підходить до дверей")]
+    [Tooltip("Р—РІСѓРє РїСЂРё РЅР°Р±Р»РёР¶РµРЅРЅС–")]
     public AudioClip hoverSound;
 
-    [Tooltip("Перетягни сюди звук, який грає коли натискаєш E")]
+    [Tooltip("Р—РІСѓРє РїСЂРё РІР·Р°С”РјРѕРґС–С—")]
     public AudioClip clickSound;
 
     [Range(0f, 1f)]
-    [Tooltip("Гучність звуків (0 = тихо, 1 = голосно)")]
+    [Tooltip("Р“СѓС‡РЅС–СЃС‚СЊ Р·РІСѓРєС–РІ")]
     public float soundVolume = 1f;
 
     private bool playerNearby = false;
@@ -36,6 +47,7 @@ public class DoorTrigger : MonoBehaviour
     private bool isTransitioning = false;
     private Transform player;
     private AudioSource audioSource;
+    private Vector3 closedRotation;
 
     void Start()
     {
@@ -43,6 +55,9 @@ public class DoorTrigger : MonoBehaviour
         audioSource.playOnAwake = false;
         audioSource.spatialBlend = 0f;
         audioSource.volume = soundVolume;
+
+        // Р—Р±РµСЂС–РіР°С”РјРѕ РїРѕС‡Р°С‚РєРѕРІРµ РѕР±РµСЂС‚Р°РЅРЅСЏ
+        closedRotation = transform.localEulerAngles;
     }
 
     void Update()
@@ -56,24 +71,43 @@ public class DoorTrigger : MonoBehaviour
     IEnumerator OpenDoor()
     {
         isTransitioning = true;
-        Debug.Log("Відкриваю двері, перехід на сцену...");
+        Debug.Log("Р’С–РґРєСЂРёРІР°СЋ РґРІРµСЂС– Р· Р°РЅС–РјР°С†С–С”СЋ РѕР±РµСЂС‚Р°РЅРЅСЏ...");
 
-        // Зберігаємо позицію спавну
+        // Р’С–РґС‚РІРѕСЂСЋС”РјРѕ Р·РІСѓРє РєР»С–РєСѓ
+        if (clickSound != null)
+        {
+            audioSource.PlayOneShot(clickSound, soundVolume);
+        }
+
+        // Р¦С–Р»СЊРѕРІРёР№ РєСѓС‚: РїРѕС‡Р°С‚РєРѕРІРёР№ + РІС–РґРєСЂРёС‚РёР№ РєСѓС‚ РїРѕ РѕСЃС– Z
+        Vector3 targetRotation = closedRotation + new Vector3(0, 0, openAngle);
+
+        float elapsedTime = 0f;
+        float duration = 1f / openSpeed; // РЅР°РїСЂРёРєР»Р°Рґ, РїСЂРё openSpeed = 2 в†’ С‚СЂРёРІР°Р»С–СЃС‚СЊ = 0.5 СЃРµРє
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duration;
+            transform.localEulerAngles = Vector3.Lerp(closedRotation, targetRotation, t);
+            yield return null;
+        }
+
+        // РџРµСЂРµРєРѕРЅСѓС”РјРѕСЃСЊ, С‰Рѕ РєСѓС‚ С‚РѕС‡РЅРѕ РІСЃС‚Р°РЅРѕРІР»РµРЅРёР№
+        transform.localEulerAngles = targetRotation;
+
+        // РќРµРІРµР»РёРєР° Р·Р°С‚СЂРёРјРєР° РїРµСЂРµРґ РїРµСЂРµС…РѕРґРѕРј
+        yield return new WaitForSeconds(0.3f);
+
+        // Р—Р±РµСЂС–РіР°С”РјРѕ РїРѕР·РёС†С–СЋ СЃРїР°РІРЅСѓ
         PlayerPrefs.SetFloat("SpawnX", spawnPosition.x);
         PlayerPrefs.SetFloat("SpawnY", spawnPosition.y);
         PlayerPrefs.SetFloat("SpawnZ", spawnPosition.z);
         PlayerPrefs.SetFloat("SpawnRotY", spawnRotation.y);
-        PlayerPrefs.SetInt("ShouldSpawn", 1); // Прапорець що треба заспавнити
+        PlayerPrefs.SetInt("ShouldSpawn", 1);
         PlayerPrefs.Save();
 
-        // Відтворюємо звук кліку
-        if (clickSound != null)
-        {
-            audioSource.PlayOneShot(clickSound, soundVolume);
-            yield return new WaitForSeconds(0.2f);
-        }
-
-        // Завантажуємо сцену
+        // Р—Р°РІР°РЅС‚Р°Р¶СѓС”РјРѕ СЃС†РµРЅСѓ
         if (sceneIndex >= 0)
         {
             SceneManager.LoadScene(sceneIndex);
@@ -84,7 +118,7 @@ public class DoorTrigger : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Не вказано сцену для переходу!");
+            Debug.LogError("РќРµ РІРєР°Р·Р°РЅРѕ СЃС†РµРЅСѓ РґР»СЏ РїРµСЂРµС…РѕРґСѓ!");
             isTransitioning = false;
         }
     }
@@ -95,7 +129,7 @@ public class DoorTrigger : MonoBehaviour
         {
             playerNearby = true;
             player = other.transform;
-            Debug.Log("Гравець підійшов до дверей");
+            Debug.Log("Р“СЂР°РІРµС†СЊ РїС–РґС–Р№С€РѕРІ РґРѕ РґРІРµСЂРµР№");
 
             if (hoverSound != null && !soundPlayed)
             {
@@ -121,7 +155,7 @@ public class DoorTrigger : MonoBehaviour
         {
             playerNearby = true;
             player = collision.transform;
-            Debug.Log("Гравець зіткнувся з дверима");
+            Debug.Log("Р“СЂР°РІРµС†СЊ Р·С–С‚РєРЅСѓРІСЃСЏ Р· РґРІРµСЂРёРјР°");
 
             if (hoverSound != null && !soundPlayed)
             {
@@ -146,11 +180,19 @@ public class DoorTrigger : MonoBehaviour
         if (playerNearby && showPrompt && !isTransitioning)
         {
             GUIStyle style = new GUIStyle();
-            style.fontSize = 24;
+            style.fontSize = textSize;
             style.normal.textColor = Color.white;
             style.alignment = TextAnchor.MiddleCenter;
+            style.fontStyle = FontStyle.Bold;
 
-            GUI.Label(new Rect(Screen.width / 2 - 200, Screen.height / 2 + 50, 400, 50), promptText, style);
+            int rectWidth = Mathf.Max(200, textSize * promptText.Length / 2);
+            int rectHeight = textSize + 10;
+
+            GUI.Label(
+                new Rect(Screen.width / 2 - rectWidth / 2, Screen.height / 2 + 50, rectWidth, rectHeight),
+                promptText,
+                style
+            );
         }
     }
 }

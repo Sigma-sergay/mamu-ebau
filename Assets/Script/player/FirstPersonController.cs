@@ -25,9 +25,18 @@ public class FirstPersonController : MonoBehaviour
     public float groundDistance = 0.2f;
     public string groundTag = "Ground";
 
+    [Header("Footstep Sounds")]
+    [Tooltip("ѕерет€гни сюди звук ходьби")]
+    public AudioClip footstepSound;
+
+    [Tooltip("√учн≥сть звуку ходьби (0 = тихо, 1 = голосно)")]
+    [Range(0f, 1f)]
+    public float footstepVolume = 0.5f;
+
     // Components
     private CharacterController controller;
     private Camera playerCamera;
+    private AudioSource audioSource;
 
     // Movement
     private Vector3 velocity;
@@ -69,6 +78,14 @@ public class FirstPersonController : MonoBehaviour
             playerCamera.transform.localPosition = new Vector3(0, 1.6f, 0);
             playerCamera.transform.localRotation = Quaternion.identity;
         }
+
+        // —творити AudioSource дл€ звук≥в крок≥в
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.loop = true; // ÷икл≥чне в≥дтворенн€
+        audioSource.spatialBlend = 0f;
+        audioSource.volume = footstepVolume;
+        audioSource.clip = footstepSound;
 
         // Auto-create groundCheck if not assigned
         if (groundCheck == null)
@@ -114,6 +131,7 @@ public class FirstPersonController : MonoBehaviour
         HandleMouseLook();
         HandleMovement();
         HandleJump();
+        HandleFootsteps();
     }
 
     void HandleMouseLook()
@@ -197,6 +215,24 @@ public class FirstPersonController : MonoBehaviour
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+        }
+    }
+
+    void HandleFootsteps()
+    {
+        // ѕерев≥р€Їмо чи натиснуто W, A, S або D
+        bool isWalking = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) ||
+                         Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D);
+
+        // якщо йдемо ≥ звук не граЇ - запустити
+        if (isWalking && !audioSource.isPlaying && footstepSound != null)
+        {
+            audioSource.Play();
+        }
+        // якщо не йдемо ≥ звук граЇ - зупинити
+        else if (!isWalking && audioSource.isPlaying)
+        {
+            audioSource.Stop();
         }
     }
 }
