@@ -7,7 +7,7 @@
       "RelativeMoniker": "D:0:0:{2F9C2FEF-4978-28CC-6271-602CCCED13A6}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\scenes\\doortrigger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{2F9C2FEF-4978-28CC-6271-602CCCED13A6}|Assembly-CSharp.csproj|c:\\users\\no name no game\\mamu-ebau3\\assets\\script\\player\\firstpersoncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{2F9C2FEF-4978-28CC-6271-602CCCED13A6}|Assembly-CSharp.csproj|C:\\Users\\no name no game\\mamu-ebau3\\assets\\script\\player\\firstpersoncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{2F9C2FEF-4978-28CC-6271-602CCCED13A6}|Assembly-CSharp.csproj|solutionrelative:assets\\script\\player\\firstpersoncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -28,7 +28,7 @@
               "RelativeDocumentMoniker": "Assets\\Script\\player\\FirstPersonController.cs",
               "ToolTip": "C:\\Users\\no name no game\\mamu-ebau3\\Assets\\Script\\player\\FirstPersonController.cs",
               "RelativeToolTip": "Assets\\Script\\player\\FirstPersonController.cs",
-              "ViewState": "AgIAAO4AAAAAAAAAAAAAAAYBAAABAAAAAAAAAA==",
+              "ViewState": "AgIAANUAAAAAAAAAAAAAAO0AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-24T15:48:32.872Z",
               "EditorCaption": ""
@@ -41,7 +41,7 @@
               "RelativeDocumentMoniker": "Assets\\Script\\scenes\\DoorTrigger.cs",
               "ToolTip": "C:\\Users\\no name no game\\mamu-ebau3\\Assets\\Script\\scenes\\DoorTrigger.cs",
               "RelativeToolTip": "Assets\\Script\\scenes\\DoorTrigger.cs",
-              "ViewState": "AgIAAIMAAAAAAAAAAAAAAJsAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAK0AAAAAAAAAAAAAALwAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-24T15:41:09.114Z",
               "EditorCaption": ""
