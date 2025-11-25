@@ -5,16 +5,16 @@ using System.Collections;
 public class DoorTrigger : MonoBehaviour
 {
     [Header("Scene Settings")]
-    public string sceneName;
-    public int sceneIndex = -1;
+    [Tooltip("Назва сцени, яку треба активувати")]
+    public string targetSceneName;
 
-    [Header("Spawn Settings")]
-    public Vector3 spawnPosition = new Vector3(0, 1, 0);
-    public Vector3 spawnRotation = new Vector3(0, 0, 0);
+    [Tooltip("Назва поточної сцени (яку треба деактивувати)")]
+    public string currentSceneName;
+
+
 
     [Header("Interaction Settings")]
     public KeyCode interactKey = KeyCode.E;
-    public float interactionDistance = 3f;
 
     [Header("UI Settings")]
     public bool showPrompt = true;
@@ -25,10 +25,10 @@ public class DoorTrigger : MonoBehaviour
     public int textSize = 48;
 
     [Header("Door Animation")]
-    [Tooltip("Кут відкривання дверей навколо осі Z (в градусах). Напівоберт = 180.")]
-    public float openAngle = 90f; // зміни на 180f, якщо хочеш повний напівоберт
+    [Tooltip("Кут відкривання дверей (в градусах)")]
+    public float openAngle = 90f;
 
-    [Tooltip("Швидкість відкривання дверей (1 = за 1 секунду)")]
+    [Tooltip("Швидкість відкривання дверей")]
     public float openSpeed = 2f;
 
     [Header("Sound Settings")]
@@ -45,7 +45,6 @@ public class DoorTrigger : MonoBehaviour
     private bool playerNearby = false;
     private bool soundPlayed = false;
     private bool isTransitioning = false;
-    private Transform player;
     private AudioSource audioSource;
     private Vector3 closedRotation;
 
@@ -56,34 +55,38 @@ public class DoorTrigger : MonoBehaviour
         audioSource.spatialBlend = 0f;
         audioSource.volume = soundVolume;
 
-        // Зберігаємо початкове обертання
         closedRotation = transform.localEulerAngles;
+
+        // Автоматично визначити поточну сцену
+        if (string.IsNullOrEmpty(currentSceneName))
+        {
+            currentSceneName = SceneManager.GetActiveScene().name;
+        }
     }
 
     void Update()
     {
         if (playerNearby && Input.GetKeyDown(interactKey) && !isTransitioning)
         {
-            StartCoroutine(OpenDoor());
+            StartCoroutine(OpenDoorAndSwitchScene());
         }
     }
 
-    IEnumerator OpenDoor()
+    IEnumerator OpenDoorAndSwitchScene()
     {
         isTransitioning = true;
-        Debug.Log("Відкриваю двері з анімацією обертання...");
+        Debug.Log("Відкриваю двері...");
 
-        // Відтворюємо звук кліку
+        // Звук
         if (clickSound != null)
         {
             audioSource.PlayOneShot(clickSound, soundVolume);
         }
 
-        // Цільовий кут: початковий + відкритий кут по осі Z
+        // Анімація дверей
         Vector3 targetRotation = closedRotation + new Vector3(0, 0, openAngle);
-
         float elapsedTime = 0f;
-        float duration = 1f / openSpeed; // наприклад, при openSpeed = 2 → тривалість = 0.5 сек
+        float duration = 1f / openSpeed;
 
         while (elapsedTime < duration)
         {
@@ -93,34 +96,12 @@ public class DoorTrigger : MonoBehaviour
             yield return null;
         }
 
-        // Переконуємось, що кут точно встановлений
         transform.localEulerAngles = targetRotation;
-
-        // Невелика затримка перед переходом
         yield return new WaitForSeconds(0.3f);
 
-        // Зберігаємо позицію спавну
-        PlayerPrefs.SetFloat("SpawnX", spawnPosition.x);
-        PlayerPrefs.SetFloat("SpawnY", spawnPosition.y);
-        PlayerPrefs.SetFloat("SpawnZ", spawnPosition.z);
-        PlayerPrefs.SetFloat("SpawnRotY", spawnRotation.y);
-        PlayerPrefs.SetInt("ShouldSpawn", 1);
-        PlayerPrefs.Save();
-
-        // Завантажуємо сцену
-        if (sceneIndex >= 0)
-        {
-            SceneManager.LoadScene(sceneIndex);
-        }
-        else if (!string.IsNullOrEmpty(sceneName))
-        {
-            SceneManager.LoadScene(sceneName);
-        }
-        else
-        {
-            Debug.LogError("Не вказано сцену для переходу!");
-            isTransitioning = false;
-        }
+        // Просто завантажуємо нову сцену (стара автоматично видалиться)
+        Debug.Log($"Завантажую сцену: {targetSceneName}");
+        SceneManager.LoadScene(targetSceneName);
     }
 
     void OnTriggerEnter(Collider other)
@@ -128,7 +109,6 @@ public class DoorTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerNearby = true;
-            player = other.transform;
             Debug.Log("Гравець підійшов до дверей");
 
             if (hoverSound != null && !soundPlayed)
@@ -144,7 +124,6 @@ public class DoorTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerNearby = false;
-            player = null;
             soundPlayed = false;
         }
     }
@@ -154,7 +133,6 @@ public class DoorTrigger : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             playerNearby = true;
-            player = collision.transform;
             Debug.Log("Гравець зіткнувся з дверима");
 
             if (hoverSound != null && !soundPlayed)
@@ -170,7 +148,6 @@ public class DoorTrigger : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             playerNearby = false;
-            player = null;
             soundPlayed = false;
         }
     }

@@ -1,7 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement; // <--- ОБОВ'ЯЗКОВО ДЛЯ ЗАВАНТАЖЕННЯ СЦЕН
+using UnityEngine.SceneManagement;
 
 public class LevelQuestionTrigger : MonoBehaviour
 {
@@ -27,7 +27,7 @@ public class LevelQuestionTrigger : MonoBehaviour
     public float timeLimitSeconds = 30f;
 
     [Tooltip("Назва сцени, яку завантажити після смерті (наприклад, Menu).")]
-    public string timeOutSceneName = "Menu"; // <--- НОВЕ ПОЛЕ
+    public string timeOutSceneName = "Menu";
 
     [Tooltip("Як швидко текст з'являється (сек).")]
     public float fadeDuration = 1.0f;
@@ -35,7 +35,23 @@ public class LevelQuestionTrigger : MonoBehaviour
     [Tooltip("Тег гравця.")]
     public string playerTag = "Player";
 
+    // --- НАЛАШТУВАННЯ ЗВУКІВ ---
+    [Header("Звукові Ефекти")]
+    [Tooltip("Звук, який грає перші 17 секунд")]
+    public AudioClip firstSound;
+
+    [Tooltip("Звук, який грає після 17 секунд")]
+    public AudioClip secondSound;
+
+    [Tooltip("Гучність звуків (0 = тихо, 1 = голосно)")]
+    [Range(0f, 1f)]
+    public float soundVolume = 1f;
+
+    [Tooltip("Через скільки секунд змінити звук")]
+    public float soundChangeTime = 17f;
+
     private bool isActive = false;
+    private AudioSource audioSource;
 
     void Start()
     {
@@ -45,6 +61,13 @@ public class LevelQuestionTrigger : MonoBehaviour
             questionCanvasGroup.alpha = 0;
             questionCanvasGroup.blocksRaycasts = false;
         }
+
+        // Створюємо AudioSource для звуків
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.loop = true; // Циклічне відтворення
+        audioSource.spatialBlend = 0f; // 2D звук
+        audioSource.volume = soundVolume;
     }
 
     void OnTriggerEnter(Collider other)
@@ -67,17 +90,41 @@ public class LevelQuestionTrigger : MonoBehaviour
 
         Debug.Log("Питання показано, таймер пішов...");
 
-        // 3. Чекаємо 30 секунд
-        yield return new WaitForSeconds(timeLimitSeconds);
+        // 3. Запускаємо перший звук
+        if (firstSound != null)
+        {
+            audioSource.clip = firstSound;
+            audioSource.Play();
+        }
 
-        // 4. Час вийшов! Показуємо текст поразки
+        // 4. Чекаємо 17 секунд
+        yield return new WaitForSeconds(soundChangeTime);
+
+        // 5. Змінюємо на другий звук
+        if (secondSound != null)
+        {
+            audioSource.Stop();
+            audioSource.clip = secondSound;
+            audioSource.Play();
+        }
+
+        Debug.Log("Звук змінено на другий!");
+
+        // 6. Чекаємо решту часу (30 - 17 = 13 секунд)
+        float remainingTime = timeLimitSeconds - soundChangeTime;
+        yield return new WaitForSeconds(remainingTime);
+
+        // 7. Час вийшов! Зупиняємо звук
+        audioSource.Stop();
+
+        // 8. Показуємо текст поразки
         if (questionTextUI != null) questionTextUI.text = timeOutText;
         Debug.Log("Час вийшов. Завантаження меню...");
 
-        // 5. Чекаємо 2 секунди, щоб гравець встиг прочитати "Час вийшов"
+        // 9. Чекаємо 2 секунди, щоб гравець встиг прочитати "Час вийшов"
         yield return new WaitForSeconds(2.0f);
 
-        // 6. ЗАВАНТАЖУЄМО МЕНЮ
+        // 10. ЗАВАНТАЖУЄМО МЕНЮ
         LoadMenuScene();
     }
 

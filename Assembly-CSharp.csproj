@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{51981454-90E1-ECE5-4E90-3DF2B8CB0C01}</ProjectGuid>
+    <ProjectGuid>{2F9C2FEF-4978-28CC-6271-602CCCED13A6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -63,8 +63,8 @@
     <Compile Include="Assets\Script\scenes\PlayerSpawnHandler.cs" />
     <Compile Include="Assets\Scenes\Menu\Script\Light.cs" />
     <Compile Include="Assets\Script\TutorialTrigger.cs" />
-    <Compile Include="Assets\Script\scenes\DoorTriggerImproved.cs" />
     <Compile Include="Assets\Script\scenes\DoorTrigger.cs" />
+    <Compile Include="Assets\returne.cs" />
     <Compile Include="Assets\Script\player\FirstPersonController.cs" />
     <Compile Include="Assets\Script\player\ThirdPersonCamera.cs" />
     <Compile Include="Assets\Script\player\PlayerSpawner.cs" />

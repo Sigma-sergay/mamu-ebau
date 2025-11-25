@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class FirstPersonController : MonoBehaviour
 {
@@ -9,7 +9,7 @@ public class FirstPersonController : MonoBehaviour
     public float gravity = -9.81f;
 
     [Header("Acceleration Settings")]
-    [Tooltip("�������� �������/�����������")]
+    [Tooltip("Швидкість розгону/гальмування")]
     public float acceleration = 10f;
 
     [Header("Mouse Look Settings")]
@@ -17,7 +17,7 @@ public class FirstPersonController : MonoBehaviour
     public float maxLookAngle = 80f;
 
     [Header("Camera Smoothing")]
-    [Tooltip("������������ ������ (0 = ��������, 10+ = ������)")]
+    [Tooltip("Згладжування камери (0 = вимкнено, 10+ = плавно)")]
     public float cameraSmoothSpeed = 0f;
 
     [Header("Ground Check")]
@@ -26,10 +26,10 @@ public class FirstPersonController : MonoBehaviour
     public string groundTag = "Ground";
 
     [Header("Footstep Sounds")]
-    [Tooltip("��������� ���� ���� ������")]
+    [Tooltip("Перетягни сюди звук ходьби")]
     public AudioClip footstepSound;
 
-    [Tooltip("�������� ����� ������ (0 = ����, 1 = �������)")]
+    [Tooltip("Гучність звуку ходьби (0 = тихо, 1 = голосно)")]
     [Range(0f, 1f)]
     public float footstepVolume = 0.5f;
 
@@ -51,8 +51,6 @@ public class FirstPersonController : MonoBehaviour
 
     void Start()
     {
-        // �������� DontDestroyOnLoad � ������� ����� �� ���������� �� �������
-
         // Get or add CharacterController
         controller = GetComponent<CharacterController>();
         if (controller == null)
@@ -63,14 +61,14 @@ public class FirstPersonController : MonoBehaviour
             controller.center = new Vector3(0, 1f, 0);
         }
 
-        // ������ ��� �������� ������
+        // Знайти або створити камеру
         playerCamera = GetComponentInChildren<Camera>();
         if (playerCamera == null)
         {
             playerCamera = Camera.main;
         }
 
-        // ���� ������ �� ������� - ������� �� ���������
+        // Якщо камера не дочірня - зробити її дочірньою
         if (playerCamera != null && playerCamera.transform.parent != transform)
         {
             playerCamera.transform.SetParent(transform);
@@ -78,7 +76,7 @@ public class FirstPersonController : MonoBehaviour
             playerCamera.transform.localRotation = Quaternion.identity;
         }
 
-        // �������� AudioSource ��� ����� �����
+        // Створити AudioSource для звуків кроків
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.playOnAwake = false;
         audioSource.loop = true;
@@ -95,8 +93,6 @@ public class FirstPersonController : MonoBehaviour
             groundCheck = checkObj.transform;
         }
 
-        // �������� TeleportToSpawnPoint() � ������������ ��������
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -111,13 +107,16 @@ public class FirstPersonController : MonoBehaviour
 
     void HandleMouseLook()
     {
+        // Отримання вводу миші
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
+        // Оновлення цільових кутів
         rotationY += mouseX;
         rotationX -= mouseY;
         rotationX = Mathf.Clamp(rotationX, -maxLookAngle, maxLookAngle);
 
+        // Плавне обертання (якщо увімкнено згладжування)
         if (cameraSmoothSpeed > 0)
         {
             currentRotationY = Mathf.Lerp(currentRotationY, rotationY, cameraSmoothSpeed * Time.deltaTime);
@@ -125,12 +124,15 @@ public class FirstPersonController : MonoBehaviour
         }
         else
         {
+            // Без згладжування - миттєве обертання
             currentRotationY = rotationY;
             currentRotationX = rotationX;
         }
 
+        // Обертання гравця по горизонталі
         transform.rotation = Quaternion.Euler(0f, currentRotationY, 0f);
 
+        // Обертання камери по вертикалі
         if (playerCamera != null)
         {
             playerCamera.transform.localRotation = Quaternion.Euler(currentRotationX, 0f, 0f);
@@ -141,16 +143,25 @@ public class FirstPersonController : MonoBehaviour
     {
         isGrounded = CheckGround();
 
+        // Отримання вводу WASD
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
 
+        // Цільовий напрямок руху
         Vector3 targetDirection = transform.right * moveX + transform.forward * moveZ;
+
+        // Швидкість (біг або ходьба)
         float targetSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
+
+        // Цільова швидкість руху
         Vector3 targetVelocity = targetDirection * targetSpeed;
 
+        // Плавне прискорення/гальмування
         currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, acceleration * Time.deltaTime);
+
         controller.Move(currentVelocity * Time.deltaTime);
 
+        // Гравітація
         if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;
@@ -180,13 +191,16 @@ public class FirstPersonController : MonoBehaviour
 
     void HandleFootsteps()
     {
+        // Перевіряємо чи натиснуто W, A, S або D
         bool isWalking = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) ||
                          Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D);
 
+        // Якщо йдемо і звук не грає - запустити
         if (isWalking && !audioSource.isPlaying && footstepSound != null)
         {
             audioSource.Play();
         }
+        // Якщо не йдемо і звук грає - зупинити
         else if (!isWalking && audioSource.isPlaying)
         {
             audioSource.Stop();
